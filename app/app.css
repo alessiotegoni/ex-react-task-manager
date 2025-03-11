@@ -13,3 +13,9 @@ body {
     color-scheme: dark;
   }
 }
+
+@layer utilities {
+  .container {
+    @apply mx-auto lg:max-w-5xl
+  }
+}
