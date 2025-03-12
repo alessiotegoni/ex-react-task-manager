@@ -1,13 +1,14 @@
 import { Tasks, TasksContext, type Task } from "context/TasksProvider";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
-export default function useTasks() {
+export default function useTasks(tasks?: Task[]) {
   const context = useContext(TasksContext);
 
-  if (!context) throw new Error();
+  if (!context) throw new Error("useTasks must used within TaskProvider");
 
-  const setTasks = (tasks: Task[]) =>
-    context.dispatch({ type: Tasks.LOAD_TASKS, payload: tasks });
+  useEffect(() => {
+    if (tasks) context.dispatch({ type: Tasks.LOAD_TASKS, payload: tasks });
+  }, [tasks]);
 
   const addTask = (task: Task) =>
     context.dispatch({ type: Tasks.ADD_TASK, payload: task });
@@ -28,5 +29,5 @@ export default function useTasks() {
     });
   };
 
-  return { tasks: context.tasks, setTasks, addTask, updateTask, deleteTasks };
+  return { tasks: context.tasks, addTask, updateTask, deleteTasks };
 }

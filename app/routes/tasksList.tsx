@@ -5,6 +5,7 @@ import TaskRow from "components/TaskRow";
 import { useEffect, useState } from "react";
 import useTasks from "hooks/useTasks";
 import { Form } from "react-router";
+import useSortTasks from "hooks/useSortTasks";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -53,11 +54,8 @@ export default function TasksList({
 }: Route.ComponentProps) {
   const [selectedTasksIds, setSelectedTasksIds] = useState<number[]>([]);
 
-  const { tasks, setTasks, deleteTasks } = useTasks();
-
-  useEffect(() => {
-    setTasks(loaderData);
-  }, [loaderData]);
+  const { deleteTasks } = useTasks(loaderData);
+  const { sortedTasks, handleSetSortBy } = useSortTasks();
 
   useEffect(() => {
     if (!actionData) return;
@@ -81,19 +79,28 @@ export default function TasksList({
 
   return (
     <section>
-      {tasks.length ? (
+      {sortedTasks.length ? (
         <Form method="delete">
           <table className="w-full">
             <thead>
               <tr className="text-left">
                 <th className="p-2"></th>
-                <th className="p-2">Name</th>
-                <th className="p-2">Status</th>
-                <th className="p-2">Date</th>
+                <th className="p-2" onClick={() => handleSetSortBy("title")}>
+                  Name
+                </th>
+                <th className="p-2" onClick={() => handleSetSortBy("status")}>
+                  Status
+                </th>
+                <th
+                  className="p-2"
+                  onClick={() => handleSetSortBy("createdAt")}
+                >
+                  Date
+                </th>
               </tr>
             </thead>
             <tbody>
-              {tasks.map((task) => {
+              {sortedTasks.map((task) => {
                 const isChecked = selectedTasksIds.includes(task.id);
 
                 return (
