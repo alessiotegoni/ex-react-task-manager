@@ -8,15 +8,15 @@ export type Task = {
   createdAt: string;
 };
 
-const TasksStatuses = ["To do", "Doing", "Done"] as const;
-type TaskStatus = (typeof TasksStatuses)[number];
+export const tasksStatuses = ["To do", "Doing", "Done"] as const;
+export type TaskStatus = (typeof tasksStatuses)[number];
 
 export enum Tasks {
   LOAD_TASKS,
   ADD_TASK,
   REMOVE_TASK,
   UPDATE_TASK,
-  REMOVE_MULTIPLE_TASKS,
+  REMOVE_TASKS,
 }
 
 type State = {
@@ -31,7 +31,7 @@ type Action =
     }
   | { type: Tasks.UPDATE_TASK; payload: Task }
   | { type: Tasks.REMOVE_TASK; payload: { id: number } }
-  | { type: Tasks.REMOVE_MULTIPLE_TASKS; payload: { ids: number[] } };
+  | { type: Tasks.REMOVE_TASKS; payload: { ids: number[] } };
 
 interface TasksContextValues {
   tasks: Task[];
@@ -52,16 +52,10 @@ function tasksReducer(state: State, { type, payload }: Action): State {
       return { ...state, tasks: [...state.tasks, payload] };
     case Tasks.UPDATE_TASK:
       const taskIndex = state.tasks.findIndex((task) => task.id === payload.id);
-
       if (taskIndex === -1) return state;
 
       return { ...state, tasks: state.tasks.with(taskIndex, payload) };
-    case Tasks.REMOVE_TASK:
-      return {
-        ...state,
-        tasks: state.tasks.filter((task) => task.id !== payload.id),
-      };
-    case Tasks.REMOVE_MULTIPLE_TASKS:
+    case Tasks.REMOVE_TASKS:
       return {
         ...state,
         tasks: state.tasks.filter((task) => !payload.ids.includes(task.id)),

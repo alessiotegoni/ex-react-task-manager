@@ -18,4 +18,8 @@ body {
   .container {
     @apply mx-auto lg:max-w-5xl
   }
+
+  .btn {
+    @apply p-2 px-3 rounded-xl font-medium cursor-pointer
+  }
 }
