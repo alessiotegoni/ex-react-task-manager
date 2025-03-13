@@ -1,12 +1,21 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import dayjs from "dayjs";
 import useTasks from "./useTasks";
 
 type SortBy = "title" | "status" | "createdAt";
 
+function debounce(fn: Function, delay: number) {
+  let timeoutId: NodeJS.Timeout;
+  return (search: string) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(search), delay);
+  };
+}
+
 export default function useSortTasks() {
   const [sortBy, setSortBy] = useState<SortBy>("createdAt");
   const [sortOrder, setSortOrder] = useState<1 | -1>(1);
+  const [search, setSearch] = useState("");
 
   const { tasks } = useTasks();
 
@@ -19,8 +28,6 @@ export default function useSortTasks() {
           comparison = a[sortBy].localeCompare(b[sortBy]);
         } else if (sortBy === "createdAt") {
           comparison = dayjs(a.createdAt).diff(dayjs(b.createdAt));
-          //   comparison =
-          //     new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         }
 
         return comparison * sortOrder;
@@ -28,11 +35,21 @@ export default function useSortTasks() {
     [tasks, sortBy, sortOrder]
   );
 
+  const filteredTasks = useMemo(
+    () =>
+      sortedTasks.filter((task) =>
+        task.title.toLowerCase().includes(search.toLowerCase())
+      ),
+    [sortedTasks, search]
+  );
+
+  const debouncedSetSearch = useCallback(debounce(setSearch, 300), []);
+
   const handleSetSortBy = (selectedSortBy: SortBy) => {
     if (selectedSortBy !== sortBy) setSortBy(selectedSortBy);
 
     setSortOrder(selectedSortBy === sortBy && sortOrder === -1 ? 1 : -1);
   };
 
-  return { sortedTasks, handleSetSortBy, setSortOrder };
+  return { filteredTasks, handleSetSortBy, setSortOrder, debouncedSetSearch };
 }

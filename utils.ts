@@ -1,9 +1,5 @@
 import axios from "axios";
-import {
-  tasksStatuses,
-  type Task,
-  type TaskStatus,
-} from "context/TasksProvider";
+import { tasksStatuses, type TaskStatus } from "context/TasksProvider";
 import dayjs from "dayjs";
 
 export const api = axios.create({
@@ -25,7 +21,7 @@ export const validateTask = (formData: FormData) => {
   const description = formData.get("description") as string;
   const status = formData.get("status") as TaskStatus;
 
-const forbiddenSymbolsRegex = /[!@#$%^&*()\-=+\[\]{}|;:'",.<>?/`~]/;
+  const forbiddenSymbolsRegex = /[!@#$%^&*()\-=+\[\]{}|;:'",.<>?/`~]/;
 
   if (
     !title ||

@@ -2,7 +2,7 @@ import { api } from "utils";
 import type { Route } from "./+types/tasksList";
 import type { Task } from "context/TasksProvider";
 import TaskRow from "components/TaskRow";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useTasks from "hooks/useTasks";
 import { Form } from "react-router";
 import useSortTasks from "hooks/useSortTasks";
@@ -55,12 +55,13 @@ export default function TasksList({
   const [selectedTasksIds, setSelectedTasksIds] = useState<number[]>([]);
 
   const { deleteTasks } = useTasks(loaderData);
-  const { sortedTasks, handleSetSortBy } = useSortTasks();
+  const { filteredTasks, handleSetSortBy, debouncedSetSearch } = useSortTasks();
 
   useEffect(() => {
     if (!actionData) return;
 
     deleteTasks(actionData.successfulDeletes);
+
     setSelectedTasksIds(
       actionData.failedDeletes.length ? actionData.failedDeletes : []
     );
@@ -77,9 +78,28 @@ export default function TasksList({
     alert("Task eliminate con successo");
   }, [actionData]);
 
+  const handleToggle = useCallback((taskId: number) => {
+    setSelectedTasksIds((prev) =>
+      prev.includes(taskId)
+        ? prev.filter((id) => id !== taskId)
+        : [...prev, taskId]
+    );
+  }, []);
+
+  const checkedTasks = useMemo(
+    () => new Set(selectedTasksIds),
+    [selectedTasksIds]
+  );
+
   return (
-    <section>
-      {sortedTasks.length ? (
+    <section className="flex flex-col gap-4">
+      <input
+        type="text"
+        placeholder="Search Task"
+        className="outline-0 p-2 rounded-md ring ring-violet-600 self-end"
+        onChange={(e) => debouncedSetSearch(e.target.value)}
+      />
+      {filteredTasks.length ? (
         <Form method="delete">
           <table className="w-full">
             <thead>
@@ -100,23 +120,14 @@ export default function TasksList({
               </tr>
             </thead>
             <tbody>
-              {sortedTasks.map((task) => {
-                const isChecked = selectedTasksIds.includes(task.id);
-
-                return (
-                  <TaskRow
-                    {...task}
-                    checked={isChecked}
-                    onToggle={() =>
-                      setSelectedTasksIds(
-                        isChecked
-                          ? selectedTasksIds.filter((id) => id !== task.id)
-                          : [...selectedTasksIds, task.id]
-                      )
-                    }
-                  />
-                );
-              })}
+              {filteredTasks.map((task) => (
+                <TaskRow
+                  key={task.id}
+                  {...task}
+                  checked={checkedTasks.has(task.id)}
+                  onToggle={handleToggle}
+                />
+              ))}
             </tbody>
           </table>
           {!!selectedTasksIds.length && (

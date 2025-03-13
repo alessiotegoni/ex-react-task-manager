@@ -6,16 +6,21 @@ import { formatDate, getStatusColor } from "utils";
 function TaskRow({
   id,
   title,
-  description,
   status,
   createdAt,
   checked,
   onToggle,
-}: Task & { checked: boolean; onToggle: () => void }) {
+}: Task & { checked: boolean; onToggle: (taskId: number) => void }) {
+  console.log(title);
+
   return (
     <tr>
       <td>
-        <input type="checkbox" checked={checked} onChange={onToggle} />
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={() => onToggle(id)}
+        />
         {checked && <input type="hidden" name="ids" value={id} hidden />}
       </td>
       <td className="p-2">

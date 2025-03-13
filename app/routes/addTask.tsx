@@ -1,12 +1,8 @@
 import TaskForm from "components/TaskForm";
 import type { Route } from "./+types/addTask";
-import {
-  tasksStatuses,
-  type Task,
-  type TaskStatus,
-} from "context/TasksProvider";
+import { type Task } from "context/TasksProvider";
 import { api, validateTask } from "utils";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 import useTasks from "hooks/useTasks";
 import { useNavigate } from "react-router";
 

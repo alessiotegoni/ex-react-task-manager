@@ -12,7 +12,7 @@ export async function loader({ params }: Route.ClientLoaderArgs) {
     const { data } = await api.get<Task>("/tasks/" + params.id);
 
     return data;
-  } catch (err: any) {
+  } catch (err) {
     return;
   }
 }
@@ -65,7 +65,10 @@ export default function TaskDetails({
     } else updateTask(fetcherData as Task);
   }, [fetcher.data]);
 
-  return task ? (
+  if (!task)
+    return <h2 className="text-2xl font-semibold">Task non trovato</h2>;
+
+  return (
     <div>
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-semibold">{task.title}</h2>
@@ -104,7 +107,5 @@ export default function TaskDetails({
         </Modal>
       </div>
     </div>
-  ) : (
-    <h2>Task non trovato</h2>
   );
 }
